@@ -1,16 +1,16 @@
 use bevy::prelude::*;
 use std::env;
 
-use hell_game::animation::AnimationPlugin;
-use hell_game::camera::FollowCameraPlugin;
-use hell_game::collision::CollisionPlugin;
-use hell_game::enemy::EnemyPlugin;
-use hell_game::gui::GuiPlugin;
-use hell_game::gun::GunPlugin;
-use hell_game::player::PlayerPlugin;
-use hell_game::state::GameState;
-use hell_game::world::WorldPlugin;
-use hell_game::*;
+use infinite_shooter_game::animation::AnimationPlugin;
+use infinite_shooter_game::camera::FollowCameraPlugin;
+use infinite_shooter_game::collision::CollisionPlugin;
+use infinite_shooter_game::enemy::EnemyPlugin;
+use infinite_shooter_game::gui::GuiPlugin;
+use infinite_shooter_game::gun::GunPlugin;
+use infinite_shooter_game::player::PlayerPlugin;
+use infinite_shooter_game::state::GameState;
+use infinite_shooter_game::world::WorldPlugin;
+use infinite_shooter_game::*;
 
 fn main() {
     // env::set_var("RUST_BACKTRACE", "1"); // Uncomment to enable backtrace

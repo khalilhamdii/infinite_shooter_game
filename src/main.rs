@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use std::env;
 
+use bevy_rapier2d::prelude::*;
 use infinite_shooter_game::animation::AnimationPlugin;
 use infinite_shooter_game::camera::FollowCameraPlugin;
 use infinite_shooter_game::collision::CollisionPlugin;
@@ -30,9 +31,9 @@ fn main() {
                     ..default()
                 }),
         )
-        .insert_resource(ClearColor(Color::rgb_u8(
-            BG_COLOR.0, BG_COLOR.1, BG_COLOR.2,
-        )))
+        .insert_resource(ClearColor(Color::srgb(BG_COLOR.0, BG_COLOR.1, BG_COLOR.2)))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+        .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(FollowCameraPlugin)
         .add_plugins(GuiPlugin)
         .add_plugins(GunPlugin)

@@ -1,6 +1,7 @@
 use bevy::math::vec3;
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
+use bevy_rapier2d::prelude::*;
 use rand::Rng;
 
 use crate::animation::AnimationTimer;
@@ -44,6 +45,11 @@ fn init_world(
         PlayerState::default(),
         AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
         GameEntity,
+        RigidBody::Dynamic,
+        Collider::ball(16.0),
+        Velocity::zero(),
+        LockedAxes::ROTATION_LOCKED,
+        GravityScale(0.0),
     ));
 
     commands.spawn((

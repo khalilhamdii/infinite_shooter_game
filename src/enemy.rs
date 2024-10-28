@@ -11,6 +11,8 @@ use crate::state::GameState;
 use crate::world::GameEntity;
 use crate::*;
 
+use bevy_rapier2d::prelude::*;
+
 pub struct EnemyPlugin;
 
 #[derive(Component)]
@@ -98,6 +100,10 @@ fn spawn_enemies(
             enemy_type,
             AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
             GameEntity,
+            RigidBody::Dynamic,
+            Collider::ball(8.0),
+            LockedAxes::ROTATION_LOCKED,
+            GravityScale(0.0),
         ));
     }
 }

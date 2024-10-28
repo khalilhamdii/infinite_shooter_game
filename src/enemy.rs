@@ -33,7 +33,7 @@ impl Plugin for EnemyPlugin {
             Update,
             (
                 spawn_enemies.run_if(on_timer(Duration::from_secs_f32(ENEMY_SPAWN_INTERVAL))),
-                update_enemy_transform,
+                update_enemies_movements,
                 despawn_dead_enemies,
             )
                 .run_if(in_state(GameState::InGame)),
@@ -53,7 +53,7 @@ fn despawn_dead_enemies(mut commands: Commands, enemy_query: Query<(&Enemy, Enti
     }
 }
 
-fn update_enemy_transform(
+fn update_enemies_movements(
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
 ) {
@@ -104,6 +104,8 @@ fn spawn_enemies(
             Collider::ball(8.0),
             LockedAxes::ROTATION_LOCKED,
             GravityScale(0.0),
+            ColliderMassProperties::Density(1.0),
+            AdditionalMassProperties::Mass(100.0),
         ));
     }
 }

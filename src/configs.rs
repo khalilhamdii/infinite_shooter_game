@@ -17,7 +17,7 @@ pub const WORLD_H: f32 = 2500.0;
 
 // Player
 // pub const PLAYER_SPEED: f32 = 2.0;
-pub const PLAYER_SPEED: f32 = 100.0;
+pub const PLAYER_SPEED: f32 = 2.0;
 pub const PLAYER_HEALTH: f32 = 100.0;
 
 // Enemy

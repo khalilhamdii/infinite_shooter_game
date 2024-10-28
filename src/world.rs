@@ -46,10 +46,11 @@ fn init_world(
         AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
         GameEntity,
         RigidBody::Dynamic,
-        Collider::ball(16.0),
+        Collider::ball(12.0),
         Velocity::zero(),
         LockedAxes::ROTATION_LOCKED,
         GravityScale(0.0),
+        ColliderMassProperties::Density(1.0),
     ));
 
     commands.spawn((

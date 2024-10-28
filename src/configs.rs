@@ -26,7 +26,8 @@ pub const PLAYER_HEALTH: f32 = 100.0;
 pub const MAX_NUM_ENEMIES: usize = 1000;
 pub const ENEMY_DAMAGE: f32 = 0.0;
 pub const SPAWN_RATE_PER_SECOND: usize = 500;
-pub const ENEMY_HEALTH: f32 = 100.0;
+// pub const ENEMY_HEALTH: f32 = 100.0;
+pub const ENEMY_HEALTH: f32 = 500.0;
 pub const ENEMY_SPAWN_INTERVAL: f32 = 1.0;
 pub const ENEMY_SPEED: f32 = 1.0;
 
@@ -37,9 +38,11 @@ pub const KD_TREE_REFRESH_RATE: f32 = 0.1;
 pub const BULLET_SPAWN_INTERVAL: f32 = 0.1;
 pub const BULLET_TIME_SECS: f32 = 0.5;
 pub const BULLET_SPEED: f32 = 15.0;
-pub const BULLET_DAMAGE: f32 = 15.0;
+// pub const BULLET_DAMAGE: f32 = 15.0;
+pub const BULLET_DAMAGE: f32 = 1.0;
 
-pub const NUM_BULLETS_PER_SHOT: usize = 10;
+// pub const NUM_BULLETS_PER_SHOT: usize = 10;
+pub const NUM_BULLETS_PER_SHOT: usize = 100;
 
 // Colors
 pub const BG_COLOR: (f32, f32, f32) = (197., 204., 184.);

@@ -17,12 +17,15 @@ pub struct GameEntity;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::GameInit), init_world)
-            .add_systems(
-                Update,
-                spawn_world_decorations.run_if(in_state(GameState::InGame)),
-            )
-            .add_systems(OnExit(GameState::InGame), despawn_all_game_entities);
+        app.add_systems(
+            OnEnter(GameState::GameInit),
+            (init_world, init_world_decorations),
+        )
+        .add_systems(
+            Update,
+            spawn_world_decorations.run_if(in_state(GameState::InGame)),
+        )
+        .add_systems(OnExit(GameState::InGame), despawn_all_game_entities);
     }
 }
 
@@ -52,6 +55,7 @@ fn init_world(
         LockedAxes::ROTATION_LOCKED,
         GravityScale(0.0),
         ColliderMassProperties::Density(1.0),
+        AdditionalMassProperties::Mass(100.0),
     ));
 
     commands.spawn((
@@ -72,26 +76,26 @@ fn init_world(
     next_state.set(GameState::InGame);
 }
 
-// fn spawn_world_decorations(mut commands: Commands, handle: Res<GlobalTextureAtlas>) {
-//     let mut rng = rand::thread_rng();
-//     for _ in 0..NUM_WORLD_DECORATIONS {
-//         let x = rng.gen_range(-WORLD_W..WORLD_W);
-//         let y = rng.gen_range(-WORLD_H..WORLD_H);
-//         commands.spawn((
-//             SpriteBundle {
-//                 texture: handle.image.clone().unwrap(),
-//                 transform: Transform::from_translation(vec3(x, y, 0.0))
-//                     .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
-//                 ..default()
-//             },
-//             TextureAtlas {
-//                 layout: handle.layout.clone().unwrap(),
-//                 index: rng.gen_range(24..=25),
-//             },
-//             GameEntity,
-//         ));
-//     }
-// }
+fn init_world_decorations(mut commands: Commands, handle: Res<GlobalTextureAtlas>) {
+    let mut rng = rand::thread_rng();
+    for _ in 0..NUM_WORLD_DECORATIONS {
+        let x = rng.gen_range(-WORLD_W..WORLD_W);
+        let y = rng.gen_range(-WORLD_H..WORLD_H);
+        commands.spawn((
+            SpriteBundle {
+                texture: handle.image.clone().unwrap(),
+                transform: Transform::from_translation(vec3(x, y, 0.0))
+                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                ..default()
+            },
+            TextureAtlas {
+                layout: handle.layout.clone().unwrap(),
+                index: rng.gen_range(24..=25),
+            },
+            GameEntity,
+        ));
+    }
+}
 
 fn despawn_all_game_entities(
     mut commands: Commands,

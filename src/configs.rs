@@ -3,7 +3,9 @@ pub const WW: f32 = 1200.0;
 pub const WH: f32 = 900.0;
 
 // Sprites
-pub const SPRITE_SHEET_PATH: &str = "new_assets.png";
+pub const GLOBAL_SPRITE_SHEET_PATH: &str = "new_assets.png";
+pub const BIG_TREE_SPRITE_SHEET_PATH: &str = "treeBig.png";
+pub const SMALL_TREE_SPRITE_SHEET_PATH: &str = "treeSmall.png";
 pub const SPRITE_SCALE_FACTOR: f32 = 3.0;
 pub const TILE_W: u32 = 16;
 pub const TILE_H: u32 = 16;
@@ -12,6 +14,7 @@ pub const SPRITE_SHEET_H: u32 = 8;
 
 // World
 pub const NUM_WORLD_DECORATIONS: usize = 50;
+pub const NUM_WORLD_TREES: usize = 20;
 pub const WORLD_W: f32 = 3000.0;
 pub const WORLD_H: f32 = 2500.0;
 
@@ -45,4 +48,4 @@ pub const BULLET_DAMAGE: f32 = 1.0;
 pub const NUM_BULLETS_PER_SHOT: usize = 100;
 
 // Colors
-pub const BG_COLOR: (f32, f32, f32) = (197., 204., 184.);
+pub const BG_COLOR: (f32, f32, f32) = (0.314, 0.608, 0.4);

@@ -11,6 +11,19 @@ pub struct GlobalTextureAtlas {
     pub layout: Option<Handle<TextureAtlasLayout>>,
     pub image: Option<Handle<Image>>,
 }
+
+#[derive(Resource)]
+pub struct BigTreeTextureAtlas {
+    pub layout: Option<Handle<TextureAtlasLayout>>,
+    pub image: Option<Handle<Image>>,
+}
+
+#[derive(Resource)]
+pub struct SmallTreeTextureAtlas {
+    pub layout: Option<Handle<TextureAtlasLayout>>,
+    pub image: Option<Handle<Image>>,
+}
+
 #[derive(Resource)]
 pub struct CursorPosition(pub Option<Vec2>);
 
@@ -18,6 +31,8 @@ impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App) {
         app.insert_state(GameState::Loading)
             .insert_resource(GlobalTextureAtlas::default())
+            .insert_resource(BigTreeTextureAtlas::default())
+            .insert_resource(SmallTreeTextureAtlas::default())
             .insert_resource(CursorPosition(None))
             .add_systems(OnEnter(GameState::Loading), load_assets)
             .add_systems(
@@ -28,21 +43,33 @@ impl Plugin for ResourcesPlugin {
 }
 
 fn load_assets(
-    mut handle: ResMut<GlobalTextureAtlas>,
+    mut global_handle: ResMut<GlobalTextureAtlas>,
+    mut big_tree_handle: ResMut<BigTreeTextureAtlas>,
+    mut small_tree_handle: ResMut<SmallTreeTextureAtlas>,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    handle.image = Some(asset_server.load(SPRITE_SHEET_PATH));
+    global_handle.image = Some(asset_server.load(GLOBAL_SPRITE_SHEET_PATH));
 
-    let layout = TextureAtlasLayout::from_grid(
+    let global_layout = TextureAtlasLayout::from_grid(
         UVec2::new(TILE_W, TILE_H),
         SPRITE_SHEET_W,
         SPRITE_SHEET_H,
         None,
         None,
     );
-    handle.layout = Some(texture_atlas_layouts.add(layout));
+    global_handle.layout = Some(texture_atlas_layouts.add(global_layout));
+
+    big_tree_handle.image = Some(asset_server.load(BIG_TREE_SPRITE_SHEET_PATH));
+
+    let big_tree_layout = TextureAtlasLayout::from_grid(UVec2::new(48, 64), 1, 1, None, None);
+    big_tree_handle.layout = Some(texture_atlas_layouts.add(big_tree_layout));
+
+    small_tree_handle.image = Some(asset_server.load(SMALL_TREE_SPRITE_SHEET_PATH));
+
+    let small_tree_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 48), 1, 1, None, None);
+    small_tree_handle.layout = Some(texture_atlas_layouts.add(small_tree_layout));
 
     next_state.set(GameState::MainMenu);
 }
@@ -65,6 +92,24 @@ fn update_cursor_position(
 }
 
 impl Default for GlobalTextureAtlas {
+    fn default() -> Self {
+        Self {
+            layout: None,
+            image: None,
+        }
+    }
+}
+
+impl Default for BigTreeTextureAtlas {
+    fn default() -> Self {
+        Self {
+            layout: None,
+            image: None,
+        }
+    }
+}
+
+impl Default for SmallTreeTextureAtlas {
     fn default() -> Self {
         Self {
             layout: None,

@@ -13,7 +13,7 @@ impl Plugin for WorldPlugin {
         app.add_systems(OnEnter(GameState::GameInit), init_world_decorations)
             .add_systems(
                 Update,
-                spawn_world_decorations.run_if(in_state(GameState::InGame)),
+                (spawn_world_decorations, spawn_world_trees).run_if(in_state(GameState::InGame)),
             )
             .add_systems(OnExit(GameState::InGame), despawn_all_game_entities);
     }
@@ -93,6 +93,9 @@ fn despawn_all_game_entities(
 #[derive(Component)]
 struct Decoration;
 
+#[derive(Component)]
+struct Tree;
+
 fn spawn_world_decorations(
     mut commands: Commands,
     handle: Res<GlobalTextureAtlas>,
@@ -137,6 +140,94 @@ fn spawn_world_decorations(
             },
             Decoration,
         ));
+    }
+}
+
+enum TreeType {
+    Big,
+    Small,
+}
+
+fn spawn_world_trees(
+    mut commands: Commands,
+    big_tree_handle: Res<BigTreeTextureAtlas>,
+    small_tree_handle: Res<SmallTreeTextureAtlas>,
+    camera_query: Query<&Transform, With<Camera>>,
+    tree_query: Query<&Transform, With<Tree>>,
+) {
+    let mut rng = rand::thread_rng();
+    let camera_transform = camera_query.single();
+
+    // Count visible decorations
+    let mut visible_trees_count = 0;
+    let tree_type_index = rng.gen_range(0..=1);
+    let tree_type = if tree_type_index == 0 {
+        TreeType::Big
+    } else {
+        TreeType::Small
+    };
+    for trees_transform in tree_query.iter() {
+        if is_within_camera_view(camera_transform, trees_transform) {
+            visible_trees_count += 1;
+        }
+    }
+
+    // Spawn additional trees if needed
+    let trees_needed = NUM_WORLD_TREES.saturating_sub(visible_trees_count);
+    for _ in 0..trees_needed {
+        let x = rng.gen_range(
+            camera_transform.translation.x - WORLD_W..camera_transform.translation.x + WORLD_W,
+        );
+        let y = rng.gen_range(
+            camera_transform.translation.y - WORLD_H..camera_transform.translation.y + WORLD_H,
+        );
+
+        match tree_type {
+            TreeType::Big => {
+                commands.spawn((
+                    SpriteBundle {
+                        texture: big_tree_handle.image.clone().unwrap(),
+                        transform: Transform::from_translation(Vec3::new(x, y, 0.0))
+                            .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                        ..default()
+                    },
+                    TextureAtlas {
+                        layout: big_tree_handle.layout.clone().unwrap(),
+                        index: 0,
+                    },
+                    Tree,
+                ));
+            }
+            TreeType::Small => {
+                commands.spawn((
+                    SpriteBundle {
+                        texture: small_tree_handle.image.clone().unwrap(),
+                        transform: Transform::from_translation(Vec3::new(x, y, 0.0))
+                            .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                        ..default()
+                    },
+                    TextureAtlas {
+                        layout: small_tree_handle.layout.clone().unwrap(),
+                        index: 0,
+                    },
+                    Tree,
+                ));
+            }
+        }
+
+        // commands.spawn((
+        //     SpriteBundle {
+        //         texture: handle.image.clone().unwrap(),
+        //         transform: Transform::from_translation(Vec3::new(x, y, 0.0))
+        //             .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+        //         ..default()
+        //     },
+        //     TextureAtlas {
+        //         layout: handle.layout.clone().unwrap(),
+        //         index: 0,
+        //     },
+        //     Decoration,
+        // ));
     }
 }
 

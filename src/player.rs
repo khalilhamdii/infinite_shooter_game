@@ -1,9 +1,14 @@
 use bevy::math::vec3;
 use bevy::prelude::*;
+use bevy::time::Stopwatch;
 use bevy_rapier2d::prelude::*;
 
 use crate::state::GameState;
 use crate::*;
+
+use crate::animation::AnimationTimer;
+use crate::gun::{Gun, GunTimer};
+use crate::world::GameEntity;
 
 pub struct PlayerPlugin;
 
@@ -24,16 +29,65 @@ pub struct PlayerEnemyCollisionEvent;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerEnemyCollisionEvent>().add_systems(
-            Update,
-            (
-                handle_player_death,
-                handle_player_input,
-                handle_player_enemy_collision_events,
-            )
-                .run_if(in_state(GameState::InGame)),
-        );
+        app.add_systems(OnEnter(GameState::GameInit), spawn_player)
+            .add_event::<PlayerEnemyCollisionEvent>()
+            .add_systems(
+                Update,
+                (
+                    handle_player_death,
+                    handle_player_input,
+                    handle_player_enemy_collision_events,
+                )
+                    .run_if(in_state(GameState::InGame)),
+            );
     }
+}
+
+fn spawn_player(
+    mut commands: Commands,
+    handle: Res<GlobalTextureAtlas>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    commands.spawn((
+        SpriteBundle {
+            texture: handle.image.clone().unwrap(),
+            transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR).with_z(10.)),
+            ..default()
+        },
+        TextureAtlas {
+            layout: handle.layout.clone().unwrap(),
+            index: 0,
+        },
+        Player,
+        Health(PLAYER_HEALTH),
+        PlayerState::default(),
+        AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
+        GameEntity,
+        RigidBody::Dynamic,
+        Collider::ball(12.0),
+        Velocity::zero(),
+        LockedAxes::ROTATION_LOCKED,
+        GravityScale(0.0),
+        ColliderMassProperties::Density(1.0),
+        AdditionalMassProperties::Mass(100.0),
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            texture: handle.image.clone().unwrap(),
+            transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+            ..default()
+        },
+        TextureAtlas {
+            layout: handle.layout.clone().unwrap(),
+            index: 9,
+        },
+        Gun,
+        GunTimer(Stopwatch::new()),
+        GameEntity,
+    ));
+
+    next_state.set(GameState::InGame);
 }
 
 fn handle_player_enemy_collision_events(

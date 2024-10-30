@@ -19,7 +19,10 @@ impl Plugin for FollowCameraPlugin {
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default()).insert(PanCam {
+        // grab_buttons: vec![MouseButton::Middle],
         grab_buttons: vec![],
+        min_scale: 1.5, // prevent the camera from zooming too far in
+        max_scale: 2.5,
         ..default()
     });
 }

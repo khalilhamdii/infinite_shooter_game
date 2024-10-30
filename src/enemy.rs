@@ -25,6 +25,7 @@ pub enum EnemyType {
     Green,
     Red,
     Skin,
+    White,
 }
 
 impl Plugin for EnemyPlugin {
@@ -135,19 +136,21 @@ impl Default for Enemy {
 impl EnemyType {
     fn get_rand_enemy() -> Self {
         let mut rng = rand::thread_rng();
-        let rand_index = rng.gen_range(0..3);
+        let rand_index = rng.gen_range(0..4);
         return match rand_index {
             0 => Self::Green,
             1 => Self::Red,
-            _ => Self::Skin,
+            2 => Self::Skin,
+            _ => Self::White,
         };
     }
 
     pub fn get_base_sprite_index(&self) -> usize {
         match self {
-            EnemyType::Green => 8,
-            EnemyType::Red => 12,
-            EnemyType::Skin => 20,
+            EnemyType::Green => 16,
+            EnemyType::Red => 24,
+            EnemyType::Skin => 32,
+            EnemyType::White => 40,
         }
     }
 }

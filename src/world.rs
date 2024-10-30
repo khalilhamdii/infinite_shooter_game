@@ -15,6 +15,42 @@ pub struct WorldPlugin;
 #[derive(Component)]
 pub struct GameEntity;
 
+#[derive(Component)]
+pub enum DecorationType {
+    Decoration1,
+    Decoration2,
+    Decoration3,
+    Decoration4,
+    Decoration5,
+    Decoration6,
+}
+
+impl DecorationType {
+    fn get_rand_decoration() -> Self {
+        let mut rng = rand::thread_rng();
+        let rand_index = rng.gen_range(0..6);
+        return match rand_index {
+            0 => Self::Decoration1,
+            1 => Self::Decoration2,
+            2 => Self::Decoration3,
+            3 => Self::Decoration4,
+            4 => Self::Decoration5,
+            _ => Self::Decoration6,
+        };
+    }
+
+    pub fn get_base_sprite_index(&self) -> usize {
+        match self {
+            DecorationType::Decoration1 => 48,
+            DecorationType::Decoration2 => 49,
+            DecorationType::Decoration3 => 50,
+            DecorationType::Decoration4 => 51,
+            DecorationType::Decoration5 => 52,
+            DecorationType::Decoration6 => 53,
+        }
+    }
+}
+
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
@@ -66,7 +102,7 @@ fn init_world(
         },
         TextureAtlas {
             layout: handle.layout.clone().unwrap(),
-            index: 17,
+            index: 9,
         },
         Gun,
         GunTimer(Stopwatch::new()),
@@ -81,6 +117,9 @@ fn init_world_decorations(mut commands: Commands, handle: Res<GlobalTextureAtlas
     for _ in 0..NUM_WORLD_DECORATIONS {
         let x = rng.gen_range(-WORLD_W..WORLD_W);
         let y = rng.gen_range(-WORLD_H..WORLD_H);
+
+        let decoration_type = DecorationType::get_rand_decoration();
+
         commands.spawn((
             SpriteBundle {
                 texture: handle.image.clone().unwrap(),
@@ -90,7 +129,7 @@ fn init_world_decorations(mut commands: Commands, handle: Res<GlobalTextureAtlas
             },
             TextureAtlas {
                 layout: handle.layout.clone().unwrap(),
-                index: rng.gen_range(24..=25),
+                index: decoration_type.get_base_sprite_index(),
             },
             GameEntity,
         ));
@@ -126,7 +165,7 @@ fn spawn_world_decorations(
         }
     }
 
-    println!("visible_decorations_count: {:?}", visible_decorations_count);
+    // println!("visible_decorations_count: {:?}", visible_decorations_count);
 
     // Spawn additional decorations if needed
     let decorations_needed = NUM_WORLD_DECORATIONS.saturating_sub(visible_decorations_count);
@@ -137,6 +176,9 @@ fn spawn_world_decorations(
         let y = rng.gen_range(
             camera_transform.translation.y - WORLD_H..camera_transform.translation.y + WORLD_H,
         );
+
+        let decoration_type = DecorationType::get_rand_decoration();
+
         commands.spawn((
             SpriteBundle {
                 texture: handle.image.clone().unwrap(),
@@ -146,7 +188,7 @@ fn spawn_world_decorations(
             },
             TextureAtlas {
                 layout: handle.layout.clone().unwrap(),
-                index: rng.gen_range(24..=25),
+                index: decoration_type.get_base_sprite_index(),
             },
             Decoration,
         ));

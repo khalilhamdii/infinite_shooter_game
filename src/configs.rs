@@ -3,7 +3,7 @@ pub const WW: f32 = 1200.0;
 pub const WH: f32 = 900.0;
 
 // Sprites
-pub const SPRITE_SHEET_PATH: &str = "assets.png";
+pub const SPRITE_SHEET_PATH: &str = "new_assets.png";
 pub const SPRITE_SCALE_FACTOR: f32 = 3.0;
 pub const TILE_W: u32 = 16;
 pub const TILE_H: u32 = 16;
@@ -11,7 +11,7 @@ pub const SPRITE_SHEET_W: u32 = 8;
 pub const SPRITE_SHEET_H: u32 = 8;
 
 // World
-pub const NUM_WORLD_DECORATIONS: usize = 500;
+pub const NUM_WORLD_DECORATIONS: usize = 50;
 pub const WORLD_W: f32 = 3000.0;
 pub const WORLD_H: f32 = 2500.0;
 

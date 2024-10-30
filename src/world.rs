@@ -1,5 +1,6 @@
 use bevy::math::vec3;
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use rand::Rng;
 
@@ -196,6 +197,8 @@ fn spawn_world_trees(
                         index: 0,
                     },
                     Tree,
+                    RigidBody::Fixed,
+                    Collider::cuboid(24.0, 32.0),
                 ));
             }
             TreeType::Small => {
@@ -211,6 +214,8 @@ fn spawn_world_trees(
                         index: 0,
                     },
                     Tree,
+                    RigidBody::Fixed,
+                    Collider::cuboid(16.0, 24.0),
                 ));
             }
         }

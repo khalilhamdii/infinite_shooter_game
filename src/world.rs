@@ -219,20 +219,6 @@ fn spawn_world_trees(
                 ));
             }
         }
-
-        // commands.spawn((
-        //     SpriteBundle {
-        //         texture: handle.image.clone().unwrap(),
-        //         transform: Transform::from_translation(Vec3::new(x, y, 0.0))
-        //             .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
-        //         ..default()
-        //     },
-        //     TextureAtlas {
-        //         layout: handle.layout.clone().unwrap(),
-        //         index: 0,
-        //     },
-        //     Decoration,
-        // ));
     }
 }
 

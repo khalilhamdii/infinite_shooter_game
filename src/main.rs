@@ -9,7 +9,6 @@ use infinite_shooter_game::enemy::EnemyPlugin;
 use infinite_shooter_game::gui::GuiPlugin;
 use infinite_shooter_game::gun::GunPlugin;
 use infinite_shooter_game::player::PlayerPlugin;
-use infinite_shooter_game::state::GameState;
 use infinite_shooter_game::world::WorldPlugin;
 use infinite_shooter_game::*;
 
@@ -33,7 +32,7 @@ fn main() {
         )
         .insert_resource(ClearColor(Color::srgb(BG_COLOR.0, BG_COLOR.1, BG_COLOR.2)))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(RapierDebugRenderPlugin::default()) // Display collision box
         .add_plugins(FollowCameraPlugin)
         .add_plugins(GuiPlugin)
         .add_plugins(GunPlugin)

@@ -29,8 +29,8 @@ pub struct PlayerEnemyCollisionEvent;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::GameInit), spawn_player)
-            .add_event::<PlayerEnemyCollisionEvent>()
+        app.add_event::<PlayerEnemyCollisionEvent>()
+            .add_systems(OnEnter(GameState::GameInit), spawn_player)
             .add_systems(
                 Update,
                 (
@@ -48,44 +48,44 @@ fn spawn_player(
     handle: Res<GlobalTextureAtlas>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    commands.spawn((
-        SpriteBundle {
-            texture: handle.image.clone().unwrap(),
-            transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR).with_z(10.)),
-            ..default()
-        },
-        TextureAtlas {
-            layout: handle.layout.clone().unwrap(),
-            index: 0,
-        },
-        Player,
-        Health(PLAYER_HEALTH),
-        PlayerState::default(),
-        AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
-        GameEntity,
-        RigidBody::Dynamic,
-        Collider::ball(12.0),
-        Velocity::zero(),
-        LockedAxes::ROTATION_LOCKED,
-        GravityScale(0.0),
-        ColliderMassProperties::Density(1.0),
-        AdditionalMassProperties::Mass(100.0),
-    ));
+    // commands.spawn((
+    //     SpriteBundle {
+    //         texture: handle.image.clone().unwrap(),
+    //         transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR).with_z(10.)),
+    //         ..default()
+    //     },
+    //     TextureAtlas {
+    //         layout: handle.layout.clone().unwrap(),
+    //         index: 0,
+    //     },
+    //     Player,
+    //     Health(PLAYER_HEALTH),
+    //     PlayerState::default(),
+    //     AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
+    //     GameEntity,
+    //     RigidBody::Dynamic,
+    //     Collider::ball(12.0),
+    //     Velocity::zero(),
+    //     LockedAxes::ROTATION_LOCKED,
+    //     GravityScale(0.0),
+    //     ColliderMassProperties::Density(1.0),
+    //     AdditionalMassProperties::Mass(100.0),
+    // ));
 
-    commands.spawn((
-        SpriteBundle {
-            texture: handle.image.clone().unwrap(),
-            transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
-            ..default()
-        },
-        TextureAtlas {
-            layout: handle.layout.clone().unwrap(),
-            index: 9,
-        },
-        Gun,
-        GunTimer(Stopwatch::new()),
-        GameEntity,
-    ));
+    // commands.spawn((
+    //     SpriteBundle {
+    //         texture: handle.image.clone().unwrap(),
+    //         transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+    //         ..default()
+    //     },
+    //     TextureAtlas {
+    //         layout: handle.layout.clone().unwrap(),
+    //         index: 9,
+    //     },
+    //     Gun,
+    //     GunTimer(Stopwatch::new()),
+    //     GameEntity,
+    // ));
 
     next_state.set(GameState::InGame);
 }

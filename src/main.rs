@@ -5,6 +5,7 @@ use bevy_rapier2d::prelude::*;
 use infinite_shooter_game::animation::AnimationPlugin;
 use infinite_shooter_game::camera::FollowCameraPlugin;
 use infinite_shooter_game::collision::CollisionPlugin;
+use infinite_shooter_game::controls::ControlsPlugin;
 use infinite_shooter_game::enemy::EnemyPlugin;
 use infinite_shooter_game::gui::GuiPlugin;
 use infinite_shooter_game::gun::GunPlugin;
@@ -42,6 +43,7 @@ fn main() {
         .add_plugins(WorldPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(CollisionPlugin)
+        .add_plugins(ControlsPlugin)
         .insert_resource(Msaa::Off)
         .add_systems(Update, close_on_esc)
         .run();

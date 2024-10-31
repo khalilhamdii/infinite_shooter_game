@@ -1,11 +1,12 @@
 use bevy::utils::Duration;
 use std::f32::consts::PI;
 
-use bevy::math::vec3;
+use bevy::math::{vec2, vec3};
 use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::Rng;
 
 use crate::animation::AnimationTimer;
+use crate::controls::{Movable, Selectable};
 use crate::player::Player;
 use crate::state::GameState;
 use crate::world::GameEntity;
@@ -58,15 +59,15 @@ fn update_enemies_movements(
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
 ) {
-    if player_query.is_empty() || enemy_query.is_empty() {
-        return;
-    }
+    // if player_query.is_empty() || enemy_query.is_empty() {
+    //     return;
+    // }
 
-    let player_pos = player_query.single().translation;
-    for mut transform in enemy_query.iter_mut() {
-        let dir = (player_pos - transform.translation).normalize();
-        transform.translation += dir * ENEMY_SPEED;
-    }
+    // let player_pos = player_query.single().translation;
+    // for mut transform in enemy_query.iter_mut() {
+    //     let dir = (player_pos - transform.translation).normalize();
+    //     transform.translation += dir * ENEMY_SPEED;
+    // }
 }
 
 fn spawn_enemies(
@@ -82,7 +83,8 @@ fn spawn_enemies(
         return;
     }
 
-    let player_pos = player_query.single().translation.truncate();
+    // let player_pos = player_query.single().translation.truncate();
+    let player_pos = vec2(0., 0.);
     for _ in 0..enemy_spawn_count {
         let (x, y) = get_random_position_around(player_pos);
         let enemy_type = EnemyType::get_rand_enemy();
@@ -107,6 +109,7 @@ fn spawn_enemies(
             GravityScale(0.0),
             ColliderMassProperties::Density(1.0),
             AdditionalMassProperties::Mass(100.0),
+            Movable { destination: None },
         ));
     }
 }

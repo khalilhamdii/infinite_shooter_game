@@ -1,5 +1,5 @@
 use bevy::{math::vec3, prelude::*};
-use bevy_pancam::{PanCam, PanCamPlugin};
+use bevy_pancam::{DirectionKeys, PanCam, PanCamPlugin};
 
 use crate::player::Player;
 use crate::state::GameState;
@@ -23,6 +23,13 @@ fn setup_camera(mut commands: Commands) {
         grab_buttons: vec![],
         min_scale: 1.5, // prevent the camera from zooming too far in
         max_scale: 2.5,
+        move_keys: DirectionKeys {
+            // the keyboard buttons used to move the camera
+            up: vec![KeyCode::ArrowUp], // initalize the struct like this or use the provided methods for
+            down: vec![KeyCode::ArrowDown], // common key combinations
+            left: vec![KeyCode::ArrowLeft],
+            right: vec![KeyCode::ArrowRight],
+        },
         ..default()
     });
 }

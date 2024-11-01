@@ -25,10 +25,10 @@ fn setup_camera(mut commands: Commands) {
         max_scale: 2.5,
         move_keys: DirectionKeys {
             // the keyboard buttons used to move the camera
-            up: vec![KeyCode::ArrowUp], // initalize the struct like this or use the provided methods for
-            down: vec![KeyCode::ArrowDown], // common key combinations
-            left: vec![KeyCode::ArrowLeft],
-            right: vec![KeyCode::ArrowRight],
+            up: vec![KeyCode::ArrowUp, KeyCode::KeyW],
+            down: vec![KeyCode::ArrowDown, KeyCode::KeyS],
+            left: vec![KeyCode::ArrowLeft, KeyCode::KeyA],
+            right: vec![KeyCode::ArrowRight, KeyCode::KeyD],
         },
         ..default()
     });

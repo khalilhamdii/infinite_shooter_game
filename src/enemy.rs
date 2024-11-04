@@ -10,6 +10,7 @@ use crate::controls::{Movable, Selectable};
 use crate::player::Player;
 use crate::state::GameState;
 use crate::world::GameEntity;
+use crate::world::Tree;
 use crate::*;
 
 use bevy_rapier2d::prelude::*;
@@ -35,7 +36,7 @@ impl Plugin for EnemyPlugin {
             Update,
             (
                 spawn_enemies.run_if(on_timer(Duration::from_secs_f32(ENEMY_SPAWN_INTERVAL))),
-                update_enemies_movements,
+                update_enemies_movements_based_on_player_pos,
                 despawn_dead_enemies,
             )
                 .run_if(in_state(GameState::InGame)),
@@ -55,36 +56,74 @@ fn despawn_dead_enemies(mut commands: Commands, enemy_query: Query<(&Enemy, Enti
     }
 }
 
-fn update_enemies_movements(
-    target_position: Res<TargetPosition>,
-    mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
-) {
-    if enemy_query.is_empty() {
-        return;
-    }
-
-    if let Some(target_position) = target_position.0 {
-        for mut transform in enemy_query.iter_mut() {
-            let dir = (target_position.extend(0.0) - transform.translation).normalize();
-            transform.translation += dir * ENEMY_SPEED;
-        }
-    }
-}
-
-// fn update_enemies_movements(
-//     player_query: Query<&Transform, With<Player>>,
+// fn update_enemies_movements_based_on_click_position(
+//     target_position: Res<TargetPosition>,
 //     mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
 // ) {
-//     if player_query.is_empty() || enemy_query.is_empty() {
+//     if enemy_query.is_empty() {
 //         return;
 //     }
 
-//     let player_pos = player_query.single().translation;
-//     for mut transform in enemy_query.iter_mut() {
-//         let dir = (player_pos - transform.translation).normalize();
-//         transform.translation += dir * ENEMY_SPEED;
+//     if let Some(target_position) = target_position.0 {
+//         for mut transform in enemy_query.iter_mut() {
+//             let dir = (target_position.extend(0.0) - transform.translation).normalize();
+//             transform.translation += dir * ENEMY_SPEED;
+//         }
 //     }
 // }
+
+// const AVOIDANCE_RADIUS: f32 = 10.5; // Adjust as needed
+
+// fn update_enemies_movements_with_avoidance(
+//     target_position: Res<TargetPosition>,
+//     mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
+//     obstacle_query: Query<&Transform, (With<RigidBody>, Without<Enemy>)>, // Query obstacles
+// ) {
+//     if enemy_query.is_empty() {
+//         return;
+//     }
+
+//     if let Some(target_position) = target_position.0 {
+//         for mut enemy_transform in enemy_query.iter_mut() {
+//             // Calculate the initial direction toward the target
+//             let mut direction =
+//                 (target_position.extend(0.0) - enemy_transform.translation).normalize();
+
+//             // Check for nearby obstacles and adjust direction
+//             for obstacle_transform in obstacle_query.iter() {
+//                 let obstacle_position = obstacle_transform.translation.truncate();
+//                 let enemy_position = enemy_transform.translation.truncate();
+//                 let distance_to_obstacle = enemy_position.distance(obstacle_position);
+
+//                 if distance_to_obstacle < AVOIDANCE_RADIUS {
+//                     // Calculate a repulsive force away from the obstacle
+//                     let avoid_direction = (enemy_position - obstacle_position).normalize();
+//                     direction +=
+//                         avoid_direction.extend(0.0) * (AVOIDANCE_RADIUS - distance_to_obstacle);
+//                 }
+//             }
+
+//             // Normalize the final direction and move the enemy
+//             direction = direction.normalize();
+//             enemy_transform.translation += direction * ENEMY_SPEED;
+//         }
+//     }
+// }
+
+fn update_enemies_movements_based_on_player_pos(
+    player_query: Query<&Transform, With<Player>>,
+    mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
+) {
+    if player_query.is_empty() || enemy_query.is_empty() {
+        return;
+    }
+
+    let player_pos = player_query.single().translation;
+    for mut transform in enemy_query.iter_mut() {
+        let dir = (player_pos - transform.translation).normalize();
+        transform.translation += dir * ENEMY_SPEED;
+    }
+}
 
 fn spawn_enemies(
     mut commands: Commands,

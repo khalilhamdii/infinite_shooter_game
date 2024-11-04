@@ -92,10 +92,10 @@ fn despawn_all_game_entities(
 }
 
 #[derive(Component)]
-struct Decoration;
+pub struct Decoration;
 
 #[derive(Component)]
-struct Tree;
+pub struct Tree;
 
 fn spawn_world_decorations(
     mut commands: Commands,

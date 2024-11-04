@@ -6,7 +6,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::Rng;
 
 use crate::animation::AnimationTimer;
-use crate::controls::{Movable, Selectable};
+use crate::controls::{Selectable, Selected};
 use crate::player::Player;
 use crate::state::GameState;
 use crate::world::GameEntity;
@@ -57,7 +57,8 @@ fn despawn_dead_enemies(mut commands: Commands, enemy_query: Query<(&Enemy, Enti
 
 fn update_enemies_movements_based_on_click_position(
     target_position: Res<TargetPosition>,
-    mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
+    mut enemy_query: Query<&mut Transform, (With<Enemy>, With<Selected>)>,
+    // selected_entities: Res<SelectedEntities>,
 ) {
     if enemy_query.is_empty() {
         return;
@@ -70,6 +71,29 @@ fn update_enemies_movements_based_on_click_position(
         }
     }
 }
+
+// fn update_enemies_movements_based_on_click_position(
+//     target_position: Res<TargetPosition>,
+//     // mut enemy_query: Query<&mut Transform, With<Enemy>>,
+//     mut enemy_query: Query<(&mut Transform, Entity), With<Enemy>>,
+//     selected_entities: Res<SelectedEntities>,
+// ) {
+//     if enemy_query.is_empty() {
+//         return;
+//     }
+
+//     if let Some(target_position) = target_position.0 {
+//         for (mut transform, enemey) in enemy_query.iter_mut() {
+//             let dir = (target_position.extend(0.0) - transform.translation).normalize();
+//             transform.translation += dir * ENEMY_SPEED;
+
+//             if selected_entities.value.contains(&transform.entity) {
+//                 let direction = (target_position.extend(0.0) - transform.translation).normalize();
+//                 transform.translation += direction * ENEMY_SPEED;
+//             }
+//         }
+//     }
+// }
 
 // const AVOIDANCE_RADIUS: f32 = 10.5; // Adjust as needed
 
@@ -164,7 +188,7 @@ fn spawn_enemies(
             GravityScale(0.0),
             ColliderMassProperties::Density(1.0),
             AdditionalMassProperties::Mass(100.0),
-            Movable { destination: None },
+            Selectable,
         ));
     }
 }

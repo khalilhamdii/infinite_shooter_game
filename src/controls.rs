@@ -79,9 +79,13 @@ fn mouse_input_handler(
                         if let Ok((selected_box_entity, selected_box)) =
                             box_selection_query.get_single()
                         {
+                            for selected in selected_box.selected.iter() {
+                                commands.entity(*selected).insert(Selected);
+                                dbg!(&selected);
+                            }
                             selected_entities.value = selected_box.selected.clone();
                             commands.entity(selected_box_entity).despawn();
-                            dbg!(&selected_entities.value);
+                            dbg!(&selected_entities.value.len());
                         }
                     }
                 }
@@ -113,8 +117,8 @@ fn spawn_cube(commands: &mut Commands, translation: Vec3) -> Entity {
 }
 
 #[derive(Default, Resource)]
-struct SelectedEntities {
-    value: HashSet<Entity>,
+pub struct SelectedEntities {
+    pub value: HashSet<Entity>,
 }
 
 #[derive(Component)]
@@ -169,26 +173,24 @@ fn handle_collision_events(
     mut events: EventReader<CollisionEvent>,
     mut box_selection_query: Query<(Entity, &mut BoxSelection)>,
 ) {
-    if let Ok((selected_entity, mut selected_box)) = box_selection_query.get_single_mut() {
+    if let Ok((entity, mut box_selection)) = box_selection_query.get_single_mut() {
         for event in events.read() {
             match dbg!(event) {
                 CollisionEvent::Started(e1, e2, _flags) => {
-                    if *e1 == selected_entity {
-                        selected_box.selected.insert(*e2);
-                    } else if *e2 == selected_entity {
-                        selected_box.selected.insert(*e1);
+                    if *e1 == entity {
+                        box_selection.selected.insert(*e2);
+                    } else if *e2 == entity {
+                        box_selection.selected.insert(*e1);
                     }
                 }
                 CollisionEvent::Stopped(e1, e2, _flags) => {
-                    if *e1 == selected_entity {
-                        selected_box.selected.remove(e2);
-                    } else if *e2 == selected_entity {
-                        selected_box.selected.remove(e1);
+                    if *e1 == entity {
+                        box_selection.selected.remove(e2);
+                    } else if *e2 == entity {
+                        box_selection.selected.remove(e1);
                     }
                 }
             }
-
-            dbg!(&selected_box.selected);
         }
     }
 }

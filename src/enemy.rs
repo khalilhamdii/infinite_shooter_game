@@ -56,19 +56,35 @@ fn despawn_dead_enemies(mut commands: Commands, enemy_query: Query<(&Enemy, Enti
 }
 
 fn update_enemies_movements(
-    player_query: Query<&Transform, With<Player>>,
+    target_position: Res<TargetPosition>,
     mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
 ) {
-    // if player_query.is_empty() || enemy_query.is_empty() {
-    //     return;
-    // }
+    if enemy_query.is_empty() {
+        return;
+    }
 
-    // let player_pos = player_query.single().translation;
-    // for mut transform in enemy_query.iter_mut() {
-    //     let dir = (player_pos - transform.translation).normalize();
-    //     transform.translation += dir * ENEMY_SPEED;
-    // }
+    if let Some(target_position) = target_position.0 {
+        for mut transform in enemy_query.iter_mut() {
+            let dir = (target_position.extend(0.0) - transform.translation).normalize();
+            transform.translation += dir * ENEMY_SPEED;
+        }
+    }
 }
+
+// fn update_enemies_movements(
+//     player_query: Query<&Transform, With<Player>>,
+//     mut enemy_query: Query<&mut Transform, (With<Enemy>, Without<Player>)>,
+// ) {
+//     if player_query.is_empty() || enemy_query.is_empty() {
+//         return;
+//     }
+
+//     let player_pos = player_query.single().translation;
+//     for mut transform in enemy_query.iter_mut() {
+//         let dir = (player_pos - transform.translation).normalize();
+//         transform.translation += dir * ENEMY_SPEED;
+//     }
+// }
 
 fn spawn_enemies(
     mut commands: Commands,
@@ -79,7 +95,8 @@ fn spawn_enemies(
     let num_enemies = enemy_query.iter().len();
     let enemy_spawn_count = (MAX_NUM_ENEMIES - num_enemies).min(SPAWN_RATE_PER_SECOND);
 
-    if num_enemies >= MAX_NUM_ENEMIES || player_query.is_empty() {
+    // if num_enemies >= MAX_NUM_ENEMIES || player_query.is_empty() {
+    if num_enemies >= MAX_NUM_ENEMIES {
         return;
     }
 

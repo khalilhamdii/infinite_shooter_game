@@ -22,7 +22,7 @@ fn setup_camera(mut commands: Commands) {
         // grab_buttons: vec![MouseButton::Middle],
         grab_buttons: vec![],
         min_scale: 1.5, // prevent the camera from zooming too far in
-        max_scale: 2.5,
+        // max_scale: 2.5,
         move_keys: DirectionKeys {
             // the keyboard buttons used to move the camera
             up: vec![KeyCode::ArrowUp, KeyCode::KeyW],

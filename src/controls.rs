@@ -4,8 +4,6 @@ use bevy::input::mouse::MouseButtonInput;
 use bevy::input::ButtonState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use enemy::Enemy;
-use resources::TargetPosition;
 use std::collections::HashSet;
 
 pub struct ControlsPlugin;
@@ -15,14 +13,13 @@ impl Plugin for ControlsPlugin {
         app.add_systems(
             Update,
             (
-                update_target_position,
+                update_target_destination,
                 handle_collision_events,
                 mouse_input_handler,
                 draw_box_selection,
                 mouse_motion_handler,
             ),
-        )
-        .insert_resource(SelectedEntities::default());
+        );
     }
 }
 
@@ -30,22 +27,22 @@ impl Plugin for ControlsPlugin {
 pub struct Selectable;
 
 #[derive(Component)]
-pub struct Selected;
+pub struct TargetDestination(pub Option<Vec2>);
 
 #[derive(Component)]
-pub struct Movable {
-    pub destination: Option<Vec3>,
-}
+pub struct Selected;
 
-fn update_target_position(
+fn update_target_destination(
     cursor_position: Res<CursorPosition>,
     buttons: Res<ButtonInput<MouseButton>>,
-    mut target_position: ResMut<TargetPosition>,
+    mut selected_entities: Query<&mut TargetDestination, (With<Selectable>, With<Selected>)>,
 ) {
     if buttons.just_pressed(MouseButton::Right) {
         if let Some(cursor_position) = cursor_position.0 {
-            target_position.0 = Some(cursor_position);
-            println!("New target position: {:?}", cursor_position);
+            for mut target_destination in selected_entities.iter_mut() {
+                target_destination.0 = Some(cursor_position);
+                println!("New target position: {:?}", cursor_position);
+            }
         }
     }
 }
@@ -53,10 +50,9 @@ fn update_target_position(
 fn mouse_input_handler(
     mut commands: Commands,
     mut events: EventReader<MouseButtonInput>,
-    // mut selected_entities: ResMut<SelectedEntities>,
     cursor_position: Res<CursorPosition>,
     box_selection_query: Query<(Entity, &mut BoxSelection)>,
-    enemy_query: Query<Entity, (With<Enemy>, With<Selected>)>,
+    enemy_query: Query<Entity, (With<Selectable>, With<Selected>)>,
 ) {
     for event in events.read() {
         if event.button == MouseButton::Left {
@@ -89,9 +85,9 @@ fn mouse_input_handler(
                             for selected in selected_box.selected.iter() {
                                 commands.entity(*selected).insert(Selected);
                             }
-                            // selected_entities.value = selected_box.selected.clone();
+
+                            // Despawn selection box
                             commands.entity(selected_box_entity).despawn();
-                            // dbg!(&selected_entities.value.len());
                         }
                     }
                 }
@@ -146,11 +142,6 @@ fn spawn_cube(commands: &mut Commands, translation: Vec3) -> Entity {
         .insert(Sensor)
         .insert(CollisionGroups::new(SELECTABLE_GROUP, SELECTION_GROUP))
         .id()
-}
-
-#[derive(Default, Resource)]
-pub struct SelectedEntities {
-    pub value: HashSet<Entity>,
 }
 
 #[derive(Component)]

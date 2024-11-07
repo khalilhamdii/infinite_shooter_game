@@ -6,7 +6,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::Rng;
 
 use crate::animation::AnimationTimer;
-use crate::controls::{Selectable, Selected};
+use crate::controls::{Selectable, TargetDestination};
 use crate::player::Player;
 use crate::state::GameState;
 use crate::world::GameEntity;
@@ -56,44 +56,20 @@ fn despawn_dead_enemies(mut commands: Commands, enemy_query: Query<(&Enemy, Enti
 }
 
 fn update_enemies_movements_based_on_click_position(
-    target_position: Res<TargetPosition>,
-    mut enemy_query: Query<&mut Transform, (With<Enemy>, With<Selected>)>,
-    // selected_entities: Res<SelectedEntities>,
+    mut enemy_query: Query<(&mut Transform, &TargetDestination, &mut Velocity), With<Enemy>>,
 ) {
     if enemy_query.is_empty() {
         return;
     }
 
-    if let Some(target_position) = target_position.0 {
-        for mut transform in enemy_query.iter_mut() {
-            let dir = (target_position.extend(0.0) - transform.translation).normalize();
+    for (mut transform, target_destination, mut velocity) in enemy_query.iter_mut() {
+        if let Some(destination) = target_destination.0 {
+            let dir = (destination.extend(0.0) - transform.translation).normalize();
+            velocity.linvel = Vec2::ZERO;
             transform.translation += dir * ENEMY_SPEED;
         }
     }
 }
-
-// fn update_enemies_movements_based_on_click_position(
-//     target_position: Res<TargetPosition>,
-//     // mut enemy_query: Query<&mut Transform, With<Enemy>>,
-//     mut enemy_query: Query<(&mut Transform, Entity), With<Enemy>>,
-//     selected_entities: Res<SelectedEntities>,
-// ) {
-//     if enemy_query.is_empty() {
-//         return;
-//     }
-
-//     if let Some(target_position) = target_position.0 {
-//         for (mut transform, enemey) in enemy_query.iter_mut() {
-//             let dir = (target_position.extend(0.0) - transform.translation).normalize();
-//             transform.translation += dir * ENEMY_SPEED;
-
-//             if selected_entities.value.contains(&transform.entity) {
-//                 let direction = (target_position.extend(0.0) - transform.translation).normalize();
-//                 transform.translation += direction * ENEMY_SPEED;
-//             }
-//         }
-//     }
-// }
 
 // const AVOIDANCE_RADIUS: f32 = 10.5; // Adjust as needed
 
@@ -151,45 +127,46 @@ fn update_enemies_movements_based_on_click_position(
 fn spawn_enemies(
     mut commands: Commands,
     handle: Res<GlobalTextureAtlas>,
-    player_query: Query<&Transform, With<Player>>,
     enemy_query: Query<&Transform, (With<Enemy>, Without<Player>)>,
 ) {
     let num_enemies = enemy_query.iter().len();
     let enemy_spawn_count = (MAX_NUM_ENEMIES - num_enemies).min(SPAWN_RATE_PER_SECOND);
 
-    // if num_enemies >= MAX_NUM_ENEMIES || player_query.is_empty() {
     if num_enemies >= MAX_NUM_ENEMIES {
         return;
     }
 
-    // let player_pos = player_query.single().translation.truncate();
     let player_pos = vec2(0., 0.);
     for _ in 0..enemy_spawn_count {
         let (x, y) = get_random_position_around(player_pos);
         let enemy_type = EnemyType::get_rand_enemy();
-        commands.spawn((
-            SpriteBundle {
-                texture: handle.image.clone().unwrap(),
-                transform: Transform::from_translation(vec3(x, y, 1.0))
-                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
-                ..default()
-            },
-            TextureAtlas {
-                layout: handle.layout.clone().unwrap(),
-                index: enemy_type.get_base_sprite_index(),
-            },
-            Enemy::default(),
-            enemy_type,
-            AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
-            GameEntity,
-            RigidBody::Dynamic,
-            Collider::ball(8.0),
-            LockedAxes::ROTATION_LOCKED,
-            GravityScale(0.0),
-            ColliderMassProperties::Density(1.0),
-            AdditionalMassProperties::Mass(100.0),
-            Selectable,
-        ));
+        commands
+            .spawn((
+                SpriteBundle {
+                    texture: handle.image.clone().unwrap(),
+                    transform: Transform::from_translation(vec3(x, y, 1.0))
+                        .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                    ..default()
+                },
+                TextureAtlas {
+                    layout: handle.layout.clone().unwrap(),
+                    index: enemy_type.get_base_sprite_index(),
+                },
+                Enemy::default(),
+                enemy_type,
+                AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
+                GameEntity,
+                RigidBody::Dynamic,
+                Collider::ball(8.0),
+                LockedAxes::ROTATION_LOCKED,
+                GravityScale(0.0),
+                ColliderMassProperties::Density(1.0),
+                AdditionalMassProperties::Mass(100.0),
+                Sleeping::disabled(),
+                Selectable,
+                TargetDestination(None),
+            ))
+            .insert(Velocity::zero());
     }
 }
 

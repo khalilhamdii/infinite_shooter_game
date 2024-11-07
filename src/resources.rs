@@ -27,9 +27,6 @@ pub struct SmallTreeTextureAtlas {
 #[derive(Resource)]
 pub struct CursorPosition(pub Option<Vec2>);
 
-#[derive(Resource)]
-pub struct TargetPosition(pub Option<Vec2>);
-
 impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App) {
         app.insert_state(GameState::Loading)
@@ -37,7 +34,6 @@ impl Plugin for ResourcesPlugin {
             .insert_resource(BigTreeTextureAtlas::default())
             .insert_resource(SmallTreeTextureAtlas::default())
             .insert_resource(CursorPosition(None))
-            .insert_resource(TargetPosition(None))
             .add_systems(OnEnter(GameState::Loading), load_assets)
             .add_systems(
                 Update,

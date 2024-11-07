@@ -2,9 +2,11 @@ use crate::*;
 use bevy::color::palettes::css::*;
 use bevy::input::mouse::MouseButtonInput;
 use bevy::input::ButtonState;
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_rapier2d::prelude::*;
 use std::collections::HashSet;
+
+use bevy::math::{vec2, vec3};
 
 pub struct ControlsPlugin;
 
@@ -32,6 +34,9 @@ pub struct TargetDestination(pub Option<Vec2>);
 #[derive(Component)]
 pub struct Selected;
 
+#[derive(Component)]
+pub struct SelectionCircle;
+
 fn update_target_destination(
     cursor_position: Res<CursorPosition>,
     buttons: Res<ButtonInput<MouseButton>>,
@@ -53,7 +58,12 @@ fn mouse_input_handler(
     cursor_position: Res<CursorPosition>,
     box_selection_query: Query<(Entity, &mut BoxSelection)>,
     enemy_query: Query<Entity, (With<Selectable>, With<Selected>)>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    selection_circles_query: Query<Entity, With<SelectionCircle>>,
 ) {
+    let material: Handle<ColorMaterial> = materials.add(Color::srgb(1.0, 0.0, 0.0));
+
     for event in events.read() {
         if event.button == MouseButton::Left {
             if let Some(cursor_position) = cursor_position.0 {
@@ -67,6 +77,11 @@ fn mouse_input_handler(
                         for enemy_entity in enemy_query.iter() {
                             commands.entity(enemy_entity).remove::<Selected>();
                         }
+
+                        for selection_circle in selection_circles_query.iter() {
+                            commands.entity(selection_circle).despawn();
+                        }
+
                         commands
                             .entity(selected_box_entity)
                             .insert(BoxSelection {
@@ -83,7 +98,22 @@ fn mouse_input_handler(
                         {
                             // Mark entities inside the selection box as selected
                             for selected in selected_box.selected.iter() {
-                                commands.entity(*selected).insert(Selected);
+                                commands.entity(*selected).insert(Selected).with_children(
+                                    |parent| {
+                                        parent.spawn((
+                                            MaterialMesh2dBundle {
+                                                mesh: meshes.add(Annulus::new(8.0, 8.5)).into(),
+                                                material: material.clone(),
+                                                transform: Transform::from_translation(vec3(
+                                                    0.0, 0.0, 0.5,
+                                                ))
+                                                .with_scale(Vec3::splat(1.0)),
+                                                ..Default::default()
+                                            },
+                                            SelectionCircle,
+                                        ));
+                                    },
+                                );
                             }
 
                             // Despawn selection box
@@ -141,6 +171,12 @@ fn spawn_cube(commands: &mut Commands, translation: Vec3) -> Entity {
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Sensor)
         .insert(CollisionGroups::new(SELECTABLE_GROUP, SELECTION_GROUP))
+        .insert(ColliderDebugColor(Hsla {
+            hue: 0.0,
+            saturation: 0.0,
+            lightness: 1.0,
+            alpha: 1.0,
+        }))
         .id()
 }
 

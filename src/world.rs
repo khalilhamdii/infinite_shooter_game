@@ -199,6 +199,12 @@ fn spawn_world_trees(
                     Tree,
                     RigidBody::Fixed,
                     Collider::cuboid(24.0, 32.0),
+                    ColliderDebugColor(Hsla {
+                        hue: 0.0,
+                        saturation: 0.0,
+                        lightness: 0.0,
+                        alpha: 0.0,
+                    }),
                 ));
             }
             TreeType::Small => {
@@ -216,6 +222,12 @@ fn spawn_world_trees(
                     Tree,
                     RigidBody::Fixed,
                     Collider::cuboid(16.0, 24.0),
+                    ColliderDebugColor(Hsla {
+                        hue: 0.0,
+                        saturation: 0.0,
+                        lightness: 0.0,
+                        alpha: 0.0,
+                    }),
                 ));
             }
         }

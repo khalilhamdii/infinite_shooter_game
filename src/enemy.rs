@@ -64,7 +64,7 @@ fn update_enemies_movements_based_on_click_position(
 
     for (mut transform, target_destination, mut velocity) in enemy_query.iter_mut() {
         if let Some(destination) = target_destination.0 {
-            let dir = (destination.extend(0.0) - transform.translation).normalize();
+            let dir = (destination.extend(5.0) - transform.translation).normalize();
             velocity.linvel = Vec2::ZERO;
             transform.translation += dir * ENEMY_SPEED;
         }
@@ -124,6 +124,13 @@ fn update_enemies_movements_based_on_click_position(
 //     }
 // }
 
+// primitives
+// const RECTANGLE: Rectangle = Rectangle {
+//     half_size: Vec2::new(30.0, 30.0),
+// };
+
+// const CIRCLE: Circle = Circle { radius: 24.0 };
+
 fn spawn_enemies(
     mut commands: Commands,
     handle: Res<GlobalTextureAtlas>,
@@ -144,9 +151,9 @@ fn spawn_enemies(
             .spawn((
                 SpriteBundle {
                     texture: handle.image.clone().unwrap(),
-                    transform: Transform::from_translation(vec3(x, y, 1.0))
+                    transform: Transform::from_translation(vec3(x, y, 5.0))
                         .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
-                    ..default()
+                    ..Default::default()
                 },
                 TextureAtlas {
                     layout: handle.layout.clone().unwrap(),
@@ -166,7 +173,13 @@ fn spawn_enemies(
                 Selectable,
                 TargetDestination(None),
             ))
-            .insert(Velocity::zero());
+            .insert(Velocity::zero())
+            .insert(ColliderDebugColor(Hsla {
+                hue: 0.0,
+                saturation: 0.0,
+                lightness: 0.0,
+                alpha: 0.0,
+            }));
     }
 }
 

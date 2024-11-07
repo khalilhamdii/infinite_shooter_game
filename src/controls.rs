@@ -53,9 +53,10 @@ fn update_target_position(
 fn mouse_input_handler(
     mut commands: Commands,
     mut events: EventReader<MouseButtonInput>,
-    mut selected_entities: ResMut<SelectedEntities>,
+    // mut selected_entities: ResMut<SelectedEntities>,
     cursor_position: Res<CursorPosition>,
     box_selection_query: Query<(Entity, &mut BoxSelection)>,
+    enemy_query: Query<Entity, (With<Enemy>, With<Selected>)>,
 ) {
     for event in events.read() {
         if event.button == MouseButton::Left {
@@ -65,6 +66,11 @@ fn mouse_input_handler(
                         println!("Pressed: {:?} at {:?}", event.button, cursor_position);
                         let selected_box_entity =
                             spawn_cube(&mut commands, cursor_position.extend(0.0));
+
+                        // Deselect previous selected entities
+                        for enemy_entity in enemy_query.iter() {
+                            commands.entity(enemy_entity).remove::<Selected>();
+                        }
                         commands
                             .entity(selected_box_entity)
                             .insert(BoxSelection {
@@ -79,14 +85,40 @@ fn mouse_input_handler(
                         if let Ok((selected_box_entity, selected_box)) =
                             box_selection_query.get_single()
                         {
+                            // Mark entities inside the selection box as selected
                             for selected in selected_box.selected.iter() {
                                 commands.entity(*selected).insert(Selected);
-                                dbg!(&selected);
                             }
-                            selected_entities.value = selected_box.selected.clone();
+                            // selected_entities.value = selected_box.selected.clone();
                             commands.entity(selected_box_entity).despawn();
-                            dbg!(&selected_entities.value.len());
+                            // dbg!(&selected_entities.value.len());
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn handle_collision_events(
+    mut events: EventReader<CollisionEvent>,
+    mut box_selection_query: Query<(Entity, &mut BoxSelection)>,
+) {
+    if let Ok((entity, mut box_selection)) = box_selection_query.get_single_mut() {
+        for event in events.read() {
+            match dbg!(event) {
+                CollisionEvent::Started(e1, e2, _flags) => {
+                    if *e1 == entity {
+                        box_selection.selected.insert(*e2);
+                    } else if *e2 == entity {
+                        box_selection.selected.insert(*e1);
+                    }
+                }
+                CollisionEvent::Stopped(e1, e2, _flags) => {
+                    if *e1 == entity {
+                        box_selection.selected.remove(e2);
+                    } else if *e2 == entity {
+                        box_selection.selected.remove(e1);
                     }
                 }
             }
@@ -164,32 +196,6 @@ fn mouse_motion_handler(
                     .entity(entity)
                     .try_insert(Collider::cuboid(half_extents.x, half_extents.y))
                     .try_insert(Transform::from_xyz(midpoint.x, midpoint.y, 0.0));
-            }
-        }
-    }
-}
-
-fn handle_collision_events(
-    mut events: EventReader<CollisionEvent>,
-    mut box_selection_query: Query<(Entity, &mut BoxSelection)>,
-) {
-    if let Ok((entity, mut box_selection)) = box_selection_query.get_single_mut() {
-        for event in events.read() {
-            match dbg!(event) {
-                CollisionEvent::Started(e1, e2, _flags) => {
-                    if *e1 == entity {
-                        box_selection.selected.insert(*e2);
-                    } else if *e2 == entity {
-                        box_selection.selected.insert(*e1);
-                    }
-                }
-                CollisionEvent::Stopped(e1, e2, _flags) => {
-                    if *e1 == entity {
-                        box_selection.selected.remove(e2);
-                    } else if *e2 == entity {
-                        box_selection.selected.remove(e1);
-                    }
-                }
             }
         }
     }
